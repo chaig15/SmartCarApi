@@ -1,6 +1,6 @@
 base_url = 'http://gmapi.azurewebsites.net/'
 import requests
-
+from SmartCar.error import SmartCarApiException
 
 class GmApiService:
 
@@ -30,33 +30,42 @@ class GmApiService:
         """
         url = base_url+endpoint
         try:
-            print(self.headers)
             r = requests.request(request_type, url, headers=self.headers, **kwargs)
-            if r.ok:
-                print('test')
-                print(r.status_code)
+            response_json = r.json()
+            if r.ok and response_json.get('status') == '200':
                 return r.json()
             else:
-                raise Exception()
+                raise SmartCarApiException(message=response_json.get('reason'), status_code=response_json.get('status'))
         except Exception as e:
-            print(e)
-            raise e
+            if isinstance(e, SmartCarApiException):
+                raise e
+            else:
+                raise SmartCarApiException()
 
     def start_stop_engine(self, json_body: dict):
         """
         calls actionEngineService endpoint with given json_body
-        :param json_body:
+        :param json_body: json request body
         :return:
         """
         try:
             value = json_body['ACTION']
+            if value == 'START':
+                json_body = {
+                    'command': 'START_VEHICLE'
+                }
+            elif value == 'STOP':
+                json_body = {
+                    'command': 'STOP_VEHICLE'
+                }
+            else:
+                raise Exception('Invalid Param:', json_body)
             self.request_body.update(json_body)
-            print(self.request_body)
-            response = self.__call_endpoint(endpoint='/actionEngineService', request_type='POST', json=self.request_body)
-            print(response)
+            response = self.__call_endpoint(endpoint='actionEngineService/', request_type='POST', json=self.request_body)
+            status = response['actionResult']['status']
             return response
         except Exception as e:
-            raise Exception("The key 'ACTION' must be present with a value of: 'START' or 'STOP'")
+            raise e
 
 
     # def start_stop_engine(self, json_body: dict):

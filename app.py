@@ -19,12 +19,9 @@ def vehicle_engine(id):
     json_body = request.get_json()
     if json_body is None:
         abort(400)
-    try:
-        result = service.start_stop_engine(json_body)
-        return jsonify(result)
-    except Exception as e:
-        print(e)
-        raise SmartCarApiException(e)
+    response = service.start_stop_engine(json_body)
+    return response
 
 
-app.run()
+if __name__ == "__main__":
+    app.run()
