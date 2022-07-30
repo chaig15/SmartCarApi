@@ -26,7 +26,8 @@ class GmApiService:
         :param endpoint: endpoint for url
         :param request_type: REST type
         :param kwargs: any other params we want to send to the request module
-        :return:
+        :return: json response on status 200
+        :raises: SmartCarApiException with message and status
         """
         url = base_url+endpoint
         try:
@@ -44,28 +45,25 @@ class GmApiService:
 
     def start_stop_engine(self, json_body: dict):
         """
-        calls actionEngineService endpoint with given json_body
+        calls actionEngineService endpoint after modifying json_body request
         :param json_body: json request body
-        :return:
+        :return: cleaned json_response from GMAPI
         """
-        try:
-            value = json_body['ACTION']
-            if value == 'START':
-                json_body = {
-                    'command': 'START_VEHICLE'
-                }
-            elif value == 'STOP':
-                json_body = {
-                    'command': 'STOP_VEHICLE'
-                }
-            else:
-                raise Exception('Invalid Param:', json_body)
-            self.request_body.update(json_body)
-            response = self.__call_endpoint(endpoint='actionEngineService/', request_type='POST', json=self.request_body)
-            status = response['actionResult']['status']
-            return response
-        except Exception as e:
-            raise e
+        value = json_body['ACTION']
+        if value == 'START':
+            json_body = {
+                'command': 'START_VEHICLE'
+            }
+        elif value == 'STOP':
+            json_body = {
+                'command': 'STOP_VEHICLE'
+            }
+        else:
+            raise Exception('Invalid Param:', json_body)
+        self.request_body.update(json_body)
+        response = self.__call_endpoint(endpoint='actionEngineService', request_type='POST', json=self.request_body)
+        status = response['actionResult']['status']
+        return response
 
 
     # def start_stop_engine(self, json_body: dict):
