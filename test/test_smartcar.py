@@ -8,6 +8,9 @@ def client():
 
 
 class TestSmartCarApi:
+    """
+    SmartCarApi Flask testing class
+    """
 
     def test_vehicle_info(self, client):
         response = client.get('/vehicles/1234')

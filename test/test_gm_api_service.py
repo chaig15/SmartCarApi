@@ -79,5 +79,3 @@ class TestGmApiService(unittest.TestCase):
     def test_get_battery_info_none(self):
         test_service = GmApiService(id=1234)
         self.assertIsNone(test_service.get_battery_fuel_info(fuel_type='batteryLevel')["percent"])
-
-        self.assertIs
