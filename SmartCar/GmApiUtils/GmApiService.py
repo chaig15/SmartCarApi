@@ -75,10 +75,15 @@ class GmApiService:
             raise SmartCarApiException(message='INVALID API BODY:', payload=json_body)
 
     def get_vehicle_info(self):
+        """
+        calls VehicleInfoService from GM and cleans response
+        :return: json response on success
+        """
         try:
             r = self.__call_endpoint('getVehicleInfoService', request_type='POST', json=self.request_body)
             response_json = r.json()
             if r.ok and response_json.get('status') == '200':
+                # extract needed info and return cleaned json
                 vin = response_json['data']['vin']['value']
                 color = response_json['data']['color']['value']
                 drive_train = response_json['data']['driveTrain']['value']
@@ -99,9 +104,40 @@ class GmApiService:
         except Exception as e:
             if isinstance(e, SmartCarApiException):
                 raise e
-            raise SmartCarApiException(message='INTERNAL API ERROR')
+            raise SmartCarApiException()
 
     def get_door_info(self):
+        """
+        calls SecurityStatusService
+        :return: json response with door status
+        """
+        try:
+            r = self.__call_endpoint('getSecurityStatusService', request_type='POST', json=self.request_body)
+            response_json = r.json()
+            if r.ok and response_json.get('status') == '200':
+                # extract door values and return json
+                door_values = response_json['data']['doors']['values']
+                to_return = []
+                for value in door_values:
+                    location = value['location']['value']
+                    locked = bool(value['locked']['value'])
+                    to_return.append({
+                        'location': location,
+                        'locked': locked
+                    })
+                return to_return
+            else:
+                raise SmartCarApiException(message=response_json.get('reason'), status_code=response_json.get('status'))
+        except Exception as e:
+            if isinstance(e, SmartCarApiException):
+                raise e
+            raise SmartCarApiException()
+
+    def get_fuel_info(self):
+        """
+        calls EnergyService
+        :return: json response with fuel status
+        """
         try:
             r = self.__call_endpoint('getSecurityStatusService', request_type='POST', json=self.request_body)
             response_json = r.json()
@@ -121,14 +157,34 @@ class GmApiService:
         except Exception as e:
             if isinstance(e, SmartCarApiException):
                 raise e
-            raise SmartCarApiException(message='INTERNAL API ERROR:')
+            raise SmartCarApiException()
+
+    def get_battery_info(self):
+        """
+        calls SecurityStatusService
+        :return: json response with battery level
+        """
+        try:
+            r = self.__call_endpoint('getSecurityStatusService', request_type='POST', json=self.request_body)
+            response_json = r.json()
+            if r.ok and response_json.get('status') == '200':
+                door_values = response_json['data']['doors']['values']
+                to_return = []
+                for value in door_values:
+                    location = value['location']['value']
+                    locked = bool(value['locked']['value'])
+                    to_return.append({
+                        'location': location,
+                        'locked': locked
+                    })
+                return to_return
+            else:
+                raise SmartCarApiException(message=response_json.get('reason'), status_code=response_json.get('status'))
+        except Exception as e:
+            if isinstance(e, SmartCarApiException):
+                raise e
+            raise SmartCarApiException()
 
 
-
-    # def start_stop_engine(self, json_body: dict):
-    #
-    #     self.request_body.update(var)
-    #     response = self.__call_endpoint(endpoint='/actionEngineService', request_type='POST', )
-    #     return response
 
 

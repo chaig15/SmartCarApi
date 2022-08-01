@@ -3,7 +3,7 @@ from werkzeug.exceptions import BadRequest, HTTPException
 
 class SmartCarApiException(Exception):
     status_code = 400
-    message = 'API ERROR'
+    message = 'INTERNAL API ERROR'
 
     def __init__(self, message=None, status_code=None, payload=None):
         super().__init__()
