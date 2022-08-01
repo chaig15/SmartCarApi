@@ -1,7 +1,7 @@
-from werkzeug.exceptions import BadRequest, HTTPException
-
-
 class SmartCarApiException(Exception):
+    """
+    Exception Wrapper for SmartCarApiExceptions
+    """
     status_code = 400
     message = 'INTERNAL API ERROR'
 

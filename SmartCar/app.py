@@ -1,7 +1,20 @@
-from flask import request, jsonify
+from flask import request, jsonify, Flask
 from SmartCar.GmApiUtils.GmApiService import GmApiService
-from SmartCar import app
 from SmartCar.error import SmartCarApiException
+import logging
+
+app = Flask(__name__)
+app.logger.setLevel(logging.INFO)
+
+
+@app.errorhandler(SmartCarApiException)
+def handle_smart_car_exception(e):
+    return jsonify(e.create()), e.status_code
+
+
+@app.errorhandler(Exception)
+def handle_generic_exception(e):
+    return jsonify(str(e)), 400
 
 
 @app.route('/vehicles/<int:id>', methods=['GET'])
