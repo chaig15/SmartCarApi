@@ -83,7 +83,7 @@ class GmApiService:
             r = self.__call_endpoint('getVehicleInfoService', request_type='POST', json=self.request_body)
             response_json = r.json()
             if r.ok and response_json.get('status') == '200':
-                # extract needed info and return cleaned json
+                # extract needed vehicle info and return cleaned json
                 vin = response_json['data']['vin']['value']
                 color = response_json['data']['color']['value']
                 drive_train = response_json['data']['driveTrain']['value']
@@ -133,25 +133,23 @@ class GmApiService:
                 raise e
             raise SmartCarApiException()
 
-    def get_fuel_info(self):
+    def get_battery_fuel_info(self, fuel_type):
         """
         calls EnergyService
-        :return: json response with fuel status
+        :param fuel_type: either tankLevel or batteryLevel
+        :return: json response with correct fuel_type status
         """
         try:
-            r = self.__call_endpoint('getSecurityStatusService', request_type='POST', json=self.request_body)
+            r = self.__call_endpoint('getEnergyService', request_type='POST', json=self.request_body)
             response_json = r.json()
             if r.ok and response_json.get('status') == '200':
-                door_values = response_json['data']['doors']['values']
-                to_return = []
-                for value in door_values:
-                    location = value['location']['value']
-                    locked = bool(value['locked']['value'])
-                    to_return.append({
-                        'location': location,
-                        'locked': locked
-                    })
-                return to_return
+                if response_json['data'][fuel_type]['type'] == 'Number':
+                    level = float(response_json['data'][fuel_type]['value'])
+                else:
+                    level = None
+                return ({
+                    "percent": level
+                })
             else:
                 raise SmartCarApiException(message=response_json.get('reason'), status_code=response_json.get('status'))
         except Exception as e:
@@ -159,31 +157,6 @@ class GmApiService:
                 raise e
             raise SmartCarApiException()
 
-    def get_battery_info(self):
-        """
-        calls SecurityStatusService
-        :return: json response with battery level
-        """
-        try:
-            r = self.__call_endpoint('getSecurityStatusService', request_type='POST', json=self.request_body)
-            response_json = r.json()
-            if r.ok and response_json.get('status') == '200':
-                door_values = response_json['data']['doors']['values']
-                to_return = []
-                for value in door_values:
-                    location = value['location']['value']
-                    locked = bool(value['locked']['value'])
-                    to_return.append({
-                        'location': location,
-                        'locked': locked
-                    })
-                return to_return
-            else:
-                raise SmartCarApiException(message=response_json.get('reason'), status_code=response_json.get('status'))
-        except Exception as e:
-            if isinstance(e, SmartCarApiException):
-                raise e
-            raise SmartCarApiException()
 
 
 

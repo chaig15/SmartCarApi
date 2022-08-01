@@ -55,11 +55,11 @@ def vehicle_fuel_info(id):
     """
     app.logger.info(f'Getting Fuel Info for vehicle_id: {id}')
     service = GmApiService(id)
-    response = service.get_fuel_info()
+    response = service.get_battery_fuel_info(fuel_type='tankLevel')
     return jsonify(response)
 
 
-@app.route('/vehicles/<int:id>/fuel', methods=['GET'])
+@app.route('/vehicles/<int:id>/battery', methods=['GET'])
 def vehicle_battery_info(id):
     """
     endpoint for vehicle battery info
@@ -68,7 +68,7 @@ def vehicle_battery_info(id):
     """
     app.logger.info(f'Getting Battery Info for vehicle_id: {id}')
     service = GmApiService(id)
-    response = service.get_battery_info()
+    response = service.get_battery_fuel_info(fuel_type='batteryLevel')
     return jsonify(response)
 
 
