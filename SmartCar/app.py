@@ -9,11 +9,21 @@ app.logger.setLevel(logging.INFO)
 
 @app.errorhandler(SmartCarApiException)
 def handle_smart_car_exception(e):
+    """
+    Smart Car Exception error handler
+    :param e: SmartCarException
+    :return: json response of smartcarException
+    """
     return jsonify(e.create()), e.status_code
 
 
 @app.errorhandler(Exception)
 def handle_generic_exception(e):
+    """
+    Generic Exception Handler
+    :param e: Generic Exception
+    :return: json response of Exception
+    """
     return jsonify(str(e)), 400
 
 

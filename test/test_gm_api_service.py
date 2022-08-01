@@ -5,6 +5,9 @@ from SmartCar.error import SmartCarApiException
 
 
 class TestGmApiService(unittest.TestCase):
+    """
+    Test Class for GMApiService
+    """
 
     def test_engine_exception(self):
         test_service = GmApiService(id=1234)
