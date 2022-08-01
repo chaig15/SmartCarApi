@@ -7,7 +7,8 @@ from SmartCar.error import SmartCarApiException
 
 
 @app.route('/vehicles/<int:id>', methods=['GET'])
-def vehicle(id):
+def vehicle_info(id):
+    app.logger.info('Getting Vehicle Info')
     service = GmApiService(id)
     response = service.get_vehicle_info()
     return jsonify(response)
@@ -16,6 +17,7 @@ def vehicle(id):
 @app.route('/vehicles/<int:id>/engine', methods=['POST'])
 def vehicle_engine(id):
     if request.data:
+        app.logger.info('Starting/Stopping Engine')
         service = GmApiService(id)
         json_body = request.get_json()
         response = service.start_stop_engine(json_body)
@@ -23,5 +25,13 @@ def vehicle_engine(id):
     raise SmartCarApiException(message='Empty Request')
 
 
+@app.route('/vehicles/<int:id>/doors', methods=['GET'])
+def vehicle_door_info(id):
+    app.logger.info('Getting Door Info')
+    service = GmApiService(id)
+    response = service.get_door_info()
+    return jsonify(response)
+
+
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)

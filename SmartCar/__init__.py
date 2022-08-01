@@ -1,7 +1,9 @@
 from flask import Flask, jsonify
 from SmartCar.error import SmartCarApiException
+import logging
 
 app = Flask(__name__)
+app.logger.setLevel(logging.INFO)
 
 
 @app.errorhandler(SmartCarApiException)
