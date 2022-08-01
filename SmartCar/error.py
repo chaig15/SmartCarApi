@@ -14,8 +14,10 @@ class SmartCarApiException(Exception):
         self.payload = payload
 
     def create(self):
-        response = dict(self.payload or ())
+        response = dict()
+        response['payload'] = self.payload
         response['message'] = self.message
+        response['status_code'] = self.status_code
         return response
 
 

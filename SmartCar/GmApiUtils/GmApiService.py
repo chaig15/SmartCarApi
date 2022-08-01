@@ -1,6 +1,7 @@
-base_url = 'http://gmapi.azurewebsites.net/'
 import requests
 from SmartCar.error import SmartCarApiException
+base_url = 'http://gmapi.azurewebsites.net/'
+
 
 class GmApiService:
 
@@ -32,16 +33,9 @@ class GmApiService:
         url = base_url+endpoint
         try:
             r = requests.request(request_type, url, headers=self.headers, **kwargs)
-            response_json = r.json()
-            if r.ok and response_json.get('status') == '200':
-                return r.json()
-            else:
-                raise SmartCarApiException(message=response_json.get('reason'), status_code=response_json.get('status'))
+            return r
         except Exception as e:
-            if isinstance(e, SmartCarApiException):
-                raise e
-            else:
-                raise SmartCarApiException()
+            raise e
 
     def start_stop_engine(self, json_body: dict):
         """
@@ -49,21 +43,59 @@ class GmApiService:
         :param json_body: json request body
         :return: cleaned json_response from GMAPI
         """
-        value = json_body['ACTION']
-        if value == 'START':
-            json_body = {
-                'command': 'START_VEHICLE'
-            }
-        elif value == 'STOP':
-            json_body = {
-                'command': 'STOP_VEHICLE'
-            }
+        try:
+            value = json_body['action']
+            if value == 'START':
+                json_body = {
+                    'command': 'START_VEHICLE'
+                }
+            elif value == 'STOP':
+                json_body = {
+                    'command': 'STOP_VEHICLE'
+                }
+            else:
+                raise Exception()
+            self.request_body.update(json_body)
+            r = self.__call_endpoint(endpoint='actionEngineService', request_type='POST', json=self.request_body)
+            response_json = r.json()
+            if r.ok and response_json.get('status') == '200':
+                # process response json on success
+                if response_json.get('actionResult').get('status') == 'EXECUTED':
+                    status = 'success'
+                else:
+                    status = 'error'
+                return ({
+                    'action': status
+                })
+            else:
+                raise SmartCarApiException(message=response_json.get('reason'), status_code=response_json.get('status'))
+        except Exception as e:
+            if isinstance(e, SmartCarApiException):
+                raise e
+            raise SmartCarApiException(message='INVALID API BODY:', payload=json_body)
+
+    def get_vehicle_info(self):
+        r = self.__call_endpoint('getVehicleInfoService', request_type='POST', json=self.request_body)
+        response_json = r.json()
+        if r.ok and response_json.get('status') == '200':
+            vin = response_json['data']['vin']['value']
+            color = response_json['data']['color']['value']
+            drive_train = response_json['data']['driveTrain']['value']
+            if response_json['data']['fourDoorSedan']['value'] == 'True':
+                door_count = 4
+            elif response_json['data']['twoDoorCoup']['value'] == 'True':
+                door_count = 2
+            else:
+                door_count = 'unknown'
+            return ({
+                'vin:': vin,
+                "color": color,
+                "doorCount": door_count,
+                "driveTrain": drive_train
+            })
         else:
-            raise Exception('Invalid Param:', json_body)
-        self.request_body.update(json_body)
-        response = self.__call_endpoint(endpoint='actionEngineService', request_type='POST', json=self.request_body)
-        status = response['actionResult']['status']
-        return response
+            raise SmartCarApiException(message=response_json.get('reason'), status_code=response_json.get('status'))
+
 
 
     # def start_stop_engine(self, json_body: dict):

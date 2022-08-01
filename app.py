@@ -8,10 +8,9 @@ from SmartCar.error import SmartCarApiException
 
 @app.route('/vehicles/<int:id>', methods=['GET'])
 def vehicle(id):
-    # service = GmApiService(id)
-    # response = service.post()
-    # return jsonify(response)
-    return 'test'
+    service = GmApiService(id)
+    response = service.get_vehicle_info()
+    return jsonify(response)
 
 
 @app.route('/vehicles/<int:id>/engine', methods=['POST'])
