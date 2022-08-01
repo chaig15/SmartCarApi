@@ -65,7 +65,7 @@ class GmApiService:
                 else:
                     status = 'error'
                 return ({
-                    'action': status
+                    'status': status
                 })
             else:
                 raise SmartCarApiException(message=response_json.get('reason'), status_code=response_json.get('status'))
@@ -89,7 +89,7 @@ class GmApiService:
                 drive_train = response_json['data']['driveTrain']['value']
                 if response_json['data']['fourDoorSedan']['value'] == 'True':
                     door_count = 4
-                elif response_json['data']['twoDoorCoup']['value'] == 'True':
+                elif response_json['data']['twoDoorCoupe']['value'] == 'True':
                     door_count = 2
                 else:
                     door_count = 'unknown'

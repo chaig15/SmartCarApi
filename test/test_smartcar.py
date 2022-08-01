@@ -43,3 +43,17 @@ class TestSmartCarApi:
         response = client.post('vehicles/1234/engine', json=json_body)
         assert response.status_code == 200
 
+    def test_stop_start_engine_empty(self, client):
+        response = client.post('vehicles/1234/engine')
+        expected_response = {'message': 'Empty Request', 'payload': None, 'status_code': 400}
+        assert response.json == expected_response
+
+    def test_bad_id(self, client):
+        response = client.get('vehicles/12345')
+        expected_response = {'message': 'Vehicle id: 12345 not found.', 'payload': None, 'status_code': '404'}
+        assert response.status_code == 404
+        assert response.json == expected_response
+
+
+
+
